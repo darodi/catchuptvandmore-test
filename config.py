@@ -302,7 +302,7 @@ class Config(metaclass=ConfigMC):
             cls._config["youtubedl_addon_path"],
             "resources",
             "language",
-            "English",
+            "resource.language.en_gb",
             "strings.po",
         )
 
