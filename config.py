@@ -28,6 +28,16 @@ def parse_settings_xml(settings_xml_filepath):
     return settings
 
 
+def parse_accounts_settings_xml(settings_xml_filepath):
+    settings = {}
+    xml = ET.parse(settings_xml_filepath)
+    for child in xml.iter():
+        if child.tag == "setting":
+            if "id" in child.attrib and ("login" in child.attrib["id"] or "password" in child.attrib["id"]):
+                settings[child.attrib["id"]] = child.text
+    return settings
+
+
 def parse_strings_po(strings_po_filepath):
     labels = {}
     po = polib.pofile(strings_po_filepath)
@@ -65,6 +75,12 @@ class Config(metaclass=ConfigMC):
             "--addon-path",
             default="",
             help="Path of plugin.video.catchuptvandmore",
+        )
+        parser.add_argument(
+            "-p",
+            "--pickle",
+            default="",
+            help="Pickle",
         )
         parser.add_argument(
             "-c",
@@ -351,7 +367,7 @@ class Config(metaclass=ConfigMC):
             Config.get("addon_path"), "resources", "settings.xml"
         )
 
-        # Choose a random languauge
+        # Choose a random language
         cls._config["addon_settings"] = parse_settings_xml(addon_settings_filepath)
         cls._config["addon_settings"]["arte.language"] = random.choice(
             ["FR", "DE", "EN", "ES", "PL", "IT"]
@@ -384,6 +400,8 @@ class Config(metaclass=ConfigMC):
         cls._config["addon_settings"]["rt.language"] = random.choice(
             ["FR", "EN", "AR", "ES"]
         )
+        cls._config["addon_settings"]["tv5mondeplus.country"] = "BE"
+        cls._config["addon_settings"]["tv5mondeplus.language"] = "fr"
         cls._config["addon_settings"]["france3regions.language"] = random.choice(
             [
                 "Alpes",
@@ -484,3 +502,30 @@ class Config(metaclass=ConfigMC):
         cls._config["xbmc_labels"] = parse_strings_po(
             os.path.join(CWD_PATH, "libs", "fake_xbmc_modules", "strings.po")
         )
+
+        cls.set_accounts()
+
+        cls._config["addon_settings"]["stream_bitrate_limit"] = '0'
+        cls._config["addon_settings"]["use_ia_hls_stream"] = "false"
+        # cls._config["addon_settings"]["use_ia_hls_stream"] = "true"
+        cls._config["addon_settings"]["use_ytdl_stream"] = "false"
+        cls._config["addon_settings"]["quality"] = '1'
+
+    @classmethod
+    def set_accounts(cls):
+
+        userdata_path = os.path.join(
+            Config.get("addon_path"),
+            "..",
+            "..",
+            "userdata",
+            "addon_data",
+            "plugin.video.catchuptvandmore",
+            "settings.xml"
+        )
+
+        if not os.path.isfile(userdata_path):
+            return
+
+        user_accounts = parse_accounts_settings_xml(userdata_path)
+        cls._config["addon_settings"].update(user_accounts)

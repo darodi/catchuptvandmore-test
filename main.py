@@ -4,6 +4,7 @@
 import glob
 # Python modules imports
 import os
+import re
 import sys
 import time
 from importlib import import_module, reload
@@ -85,9 +86,21 @@ def exploration_loop(log):
     start_time = time.time()
     entry_point_reached = False
 
-    # Init Route to root
-    root = Route(label="Root menu", path=[1])
-    Route.add_route_to_explore(root)
+    if Config.get("pickle"):
+        try:
+            config_pickle = Config.get("pickle")
+            query_string = re.sub(r'.*\?', '', config_pickle)
+            base_url = config_pickle
+            # base_url = re.sub(r'plugin://plugin.video.catchuptvandmore/', '', base_url)
+            base_url = re.sub(r'\?.*', '', base_url)
+            root = Route(label="pickle", query_string=query_string, path=[1], base_url=base_url)
+            Route.add_route_to_explore(root)
+        except Exception:
+            pass
+    else:
+        # Init Route to root
+        root = Route(label="Root menu", path=[1])
+        Route.add_route_to_explore(root)
 
     while Route.continue_epxloration():
         log.debug("Loop entry")
