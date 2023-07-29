@@ -144,6 +144,11 @@ class DialogProgress(object):
         return True
 
 
+class DialogProgressBG(object):
+    def __init__(self):
+        pass
+
+
 # INT_MAX = sys.maxint
 INT_MAX = 9223372036854775807
 

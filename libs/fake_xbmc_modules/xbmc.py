@@ -42,6 +42,59 @@ levelstr_dict = {
 }
 
 
+def executeJSONRPC(jsonrpccommand: str) -> str:
+    """
+    Execute an JSONRPC command.
+
+    :param jsonrpccommand: string - jsonrpc command to execute.
+    :return: jsonrpc return string
+
+    List of commands -Example::
+
+        ..
+        response = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "JSONRPC.Introspect", "id": 1 }')
+        ..
+    """
+    if jsonrpccommand == ('{"method": "Settings.GetSettingValue", "params": {"setting": "network.usehttpproxy"}, '
+                          '"id": 0, "jsonrpc": "2.0"}'):
+        return """
+        {
+          "result": {
+            "value": false
+          }
+        }
+        """
+
+    return """
+        {
+          "result": {}
+        }
+    """
+
+
+def getCondVisibility(condition: str) -> bool:
+    """
+    Get visibility conditions
+
+    :param condition: string - condition to check
+    :return: True (1) or False (0) as a bool
+
+    List of Conditions -http://kodi.wiki/view/List_of_Boolean_Conditions
+
+    .. note::
+        You can combine two (or more) of the above settings by
+        using ``+`` as an AND operator, ``|`` as an OR operator, ``!``
+        as a NOT operator, and ``[`` and ``]`` to bracket expressions.
+
+    Example::
+
+        ..
+        visible = xbmc.getCondVisibility('[Control.IsVisible(41) + !Control.IsVisible(12)]')
+        ..
+    """
+    return True
+
+
 def log(msg, level=LOGDEBUG):
     if level >= levelstr_dict.get(Config.get("kodi_log_level"), 0):
         log_.info("[{} level] {}".format(levelno_dict.get(level, "unknown"), msg))
@@ -63,6 +116,10 @@ def getInfoLabel(id_):
             return "18.0 fakefakefakefakefake"
         if Config.get("kodi_version") == "MATRIX":
             return "19.0 fakefakefakefakefake"
+        if Config.get("kodi_version") == "NEXUS":
+            return "20.2 fakefakefakefakefake"
+        if Config.get("kodi_version") == "OMEGA":
+            return "21.0 fakefakefakefakefake"
     return ""
 
 
